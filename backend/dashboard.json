@@ -1,0 +1,51 @@
+﻿{
+    "alert":  "CRITICAL: Low Dissolved Oxygen in Fish Pond #1. Immediate action required to prevent fish mortality.",
+    "devices":  [
+                    {
+                        "id":  1,
+                        "name":  "SoilSense Pro",
+                        "readings":  {
+                                         "ph":  6.5,
+                                         "soil_moisture_pct":  38,
+                                         "temp_c":  24
+                                     },
+                        "type":  "soil"
+                    },
+                    {
+                        "id":  2,
+                        "name":  "AquaMonitor 5000",
+                        "readings":  {
+                                         "dissolved_oxygen_mg_l":  2.1,
+                                         "ph":  7.2,
+                                         "temp_c":  26
+                                     },
+                        "type":  "aquaculture"
+                    }
+                ],
+    "upcoming_consultations":  [
+                                   {
+                                       "client_id":  1,
+                                       "date":  "2025-11-23T06:16:30.408486",
+                                       "expert_id":  3,
+                                       "id":  3,
+                                       "status":  "booked",
+                                       "topic":  "Aquaculture consult"
+                                   },
+                                   {
+                                       "client_id":  1,
+                                       "date":  "2025-11-22T23:42:25.816813",
+                                       "expert_id":  1,
+                                       "id":  1,
+                                       "status":  "booked",
+                                       "topic":  "Veterinarian: Animal Health Check"
+                                   },
+                                   {
+                                       "client_id":  1,
+                                       "date":  "2025-11-22T23:42:25.816813",
+                                       "expert_id":  2,
+                                       "id":  2,
+                                       "status":  "booked",
+                                       "topic":  "Agronomist: Soil Health Review"
+                                   }
+                               ]
+}
