@@ -1,4 +1,5 @@
 """WSGI entry point for production (Render / Gunicorn)."""
+import os
 from app import create_app
 from models import db, User
 from werkzeug.security import generate_password_hash
@@ -6,6 +7,8 @@ from werkzeug.security import generate_password_hash
 app = create_app()
 
 with app.app_context():
+    # Ensure instance directory exists for SQLite
+    os.makedirs(app.instance_path, exist_ok=True)
     db.create_all()
 
     # Seed default test users if DB is empty
