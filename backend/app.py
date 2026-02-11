@@ -7,16 +7,23 @@ from routes.experts import experts_bp
 from routes.dashboard import dashboard_bp
 from routes.ai_route import ai_bp
 from routes.messages import messages_bp
+from routes.notifications import notifications_bp
+from routes.presence import presence_bp
 import os
 from flask import send_from_directory
 
 
 def create_app(config=None):
-    app = Flask(__name__, static_folder=None)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite')
+    app = Flask(__name__, static_folder=None, instance_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance'))
+    db_path = os.path.join(app.instance_path, 'db.sqlite')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f'sqlite:///{db_path}')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+    app.config['JWT_EXPIRATION_HOURS'] = 24  # Token expires in 24 hours
 
-    CORS(app, expose_headers=['user_id'], allow_headers=['Content-Type', 'user_id'])
+    CORS(app, origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+         expose_headers=['user_id', 'Authorization'],
+         allow_headers=['Content-Type', 'user_id', 'Authorization'])
     db.init_app(app)
 
     # Register blueprints
@@ -25,6 +32,8 @@ def create_app(config=None):
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(messages_bp)
+    app.register_blueprint(notifications_bp)
+    app.register_blueprint(presence_bp)
 
     @app.route('/')
     def root():
@@ -61,4 +70,4 @@ if __name__ == '__main__':
     # Run development server
     # NOTE: For stable local testing we disable the auto-reloader and debug mode
     # so the process remains in a single running instance that tests can reliably target.
-    app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False, threaded=True)
+    app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False, threaded=True)

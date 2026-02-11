@@ -1,6 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
 import { get, post } from "../api/api";
 
+// Policy constants
+const COMMUNICATION_POLICY = {
+  title: "Communication Policy",
+  rules: [
+    "All communication must happen through this platform",
+    "Sharing phone numbers, emails, or social media handles is prohibited",
+    "Requesting contact information outside the platform is not allowed",
+    "Violations may result in account suspension",
+  ],
+  reason:
+    "This protects both parties and ensures quality service through AgroMedicana.",
+};
+
 export default function MessagingModal({ consultation, user, onClose }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -48,6 +61,16 @@ export default function MessagingModal({ consultation, user, onClose }) {
       return;
     }
 
+    // Check for contact information
+    const contactCheck = containsContactInfo(newMessage);
+    if (contactCheck.blocked) {
+      alert(
+        `⚠️ Message blocked: Your message appears to contain a ${contactCheck.reason}.\n\nSharing contact information is not allowed to protect both parties. All communication must happen through AgroMedicana.`
+      );
+      setSending(false);
+      return;
+    }
+
     setSending(true);
     console.log("Sending message to backend...");
 
@@ -90,13 +113,45 @@ export default function MessagingModal({ consultation, user, onClose }) {
     alert("Emoji picker coming soon!");
   };
 
-  const handleVideoCall = () => {
-    alert("Video call feature coming soon!");
+  // Contact info patterns to block
+  const containsContactInfo = (text) => {
+    // Phone number patterns (various formats)
+    const phonePatterns = [
+      /\b\d{10,}\b/, // 10+ consecutive digits
+      /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // xxx-xxx-xxxx
+      /\b\+\d{1,3}[-\s]?\d{6,}\b/, // +xxx xxxxxx
+      /\b0\d{2}[-\s]?\d{3}[-\s]?\d{4}\b/, // 0xx xxx xxxx
+      /\b\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{4}\b/, // (xxx) xxx-xxxx
+      /\b\d{3}\s\d{3}\s\d{4}\b/, // xxx xxx xxxx
+      /whatsapp|telegram|signal|viber/i, // Messaging app names
+      /call\s*me|text\s*me|phone|mobile/i, // Contact phrases
+    ];
+
+    // Email patterns
+    const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+
+    // Social media patterns
+    const socialPatterns = [
+      /@[a-zA-Z0-9_]{3,}/, // @username
+      /facebook|instagram|twitter|snapchat|tiktok/i,
+    ];
+
+    // Check all patterns
+    for (const pattern of phonePatterns) {
+      if (pattern.test(text))
+        return { blocked: true, reason: "phone number or contact request" };
+    }
+    if (emailPattern.test(text))
+      return { blocked: true, reason: "email address" };
+    for (const pattern of socialPatterns) {
+      if (pattern.test(text))
+        return { blocked: true, reason: "social media handle" };
+    }
+
+    return { blocked: false };
   };
 
-  const handleVoiceCall = () => {
-    alert("Voice call feature coming soon!");
-  };
+  const [showPolicyWarning, setShowPolicyWarning] = useState(false);
 
   // Get the other party's actual name
   const getOtherPartyName = () => {
@@ -141,21 +196,84 @@ export default function MessagingModal({ consultation, user, onClose }) {
             <div className="chat-actions">
               <button
                 className="chat-action-btn"
-                onClick={handleVoiceCall}
-                title="Voice Call"
+                onClick={() => setShowPolicyWarning(!showPolicyWarning)}
+                title="Communication Policy"
               >
-                📞
-              </button>
-              <button
-                className="chat-action-btn"
-                onClick={handleVideoCall}
-                title="Video Call"
-              >
-                📹
+                ℹ️
               </button>
             </div>
           </div>
         </div>
+
+        {/* Policy Warning Banner */}
+        {showPolicyWarning && (
+          <div
+            className="policy-warning-banner"
+            style={{
+              background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+              border: "1px solid #f59e0b",
+              borderRadius: "8px",
+              padding: "12px 16px",
+              margin: "0 16px 12px 16px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "start",
+                marginBottom: "8px",
+              }}
+            >
+              <h4
+                style={{
+                  margin: 0,
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#92400e",
+                }}
+              >
+                ⚠️ {COMMUNICATION_POLICY.title}
+              </h4>
+              <button
+                onClick={() => setShowPolicyWarning(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  color: "#92400e",
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <ul
+              style={{
+                margin: "0",
+                paddingLeft: "20px",
+                fontSize: "12px",
+                color: "#78350f",
+              }}
+            >
+              {COMMUNICATION_POLICY.rules.map((rule, idx) => (
+                <li key={idx} style={{ marginBottom: "4px" }}>
+                  {rule}
+                </li>
+              ))}
+            </ul>
+            <p
+              style={{
+                margin: "8px 0 0 0",
+                fontSize: "11px",
+                color: "#92400e",
+                fontStyle: "italic",
+              }}
+            >
+              {COMMUNICATION_POLICY.reason}
+            </p>
+          </div>
+        )}
 
         <div className="messages-container">
           {loading ? (

@@ -5,17 +5,13 @@ function getHeaders(includeContentType = true) {
   if (includeContentType) {
     headers["Content-Type"] = "application/json";
   }
-  const user = localStorage.getItem("user");
-  if (user) {
-    try {
-      const userData = JSON.parse(user);
-      if (userData.id) {
-        headers["user_id"] = userData.id.toString();
-      }
-    } catch (e) {
-      console.error("Error parsing user data:", e);
-    }
+  
+  // Add JWT token from localStorage if available
+  const token = localStorage.getItem("token");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
+  
   return headers;
 }
 
@@ -28,9 +24,34 @@ export async function post(path, body) {
   return res.json();
 }
 
+export async function put(path, body) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "PUT",
+    headers: getHeaders(true),
+    body: JSON.stringify(body),
+  });
+  return res.json();
+}
+
+export async function del(path) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "DELETE",
+    headers: getHeaders(false),
+  });
+  return res.json();
+}
+
 export async function get(path) {
   const res = await fetch(`${BASE}${path}`, {
     headers: getHeaders(false),
   });
   return res.json();
+}
+
+export function getBase() {
+  return BASE;
+}
+
+export function authHeaders() {
+  return getHeaders(false);
 }

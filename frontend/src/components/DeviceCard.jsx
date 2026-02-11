@@ -1,8 +1,9 @@
 import React from "react";
+import { motion } from "framer-motion";
 
 export default function DeviceCard({ device }) {
   return (
-    <div className="card w-full">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} whileHover={{ y: -3 }} className="card w-full">
       <h3 className="font-semibold">{device.name}</h3>
       <div className="text-sm mt-2 device-readings">
         {device.type === "soil" && (
@@ -22,6 +23,6 @@ export default function DeviceCard({ device }) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
