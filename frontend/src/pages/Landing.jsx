@@ -7,6 +7,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const heroImages = [
     {
@@ -313,14 +314,35 @@ export default function Landing() {
               </Link>
             </div>
 
-            <button className="md:hidden">
+            <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <i
-                className={`ri-menu-line text-xl ${
+                className={`${mobileMenuOpen ? 'ri-close-line' : 'ri-menu-line'} text-xl ${
                   scrolled ? "text-gray-900" : "text-white"
                 }`}
               ></i>
             </button>
           </div>
+
+          {/* Mobile Menu */}
+          <AnimatePresence>
+            {mobileMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="md:hidden overflow-hidden"
+              >
+                <div className={`pb-4 flex flex-col gap-2 ${scrolled ? 'text-gray-700' : 'text-white'}`}>
+                  <a href="#features" onClick={() => setMobileMenuOpen(false)} className="py-2 px-2 text-sm font-medium hover:text-teal-600 transition-colors rounded">Features</a>
+                  <a href="#experts" onClick={() => setMobileMenuOpen(false)} className="py-2 px-2 text-sm font-medium hover:text-teal-600 transition-colors rounded">Our Experts</a>
+                  <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="py-2 px-2 text-sm font-medium hover:text-teal-600 transition-colors rounded">Testimonials</a>
+                  <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 px-2 text-sm font-medium hover:text-teal-600 transition-colors rounded">Pricing</a>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="py-2 px-2 text-sm font-medium hover:text-teal-600 transition-colors rounded">Sign In</Link>
+                  <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="mt-1 px-4 py-2.5 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 transition-colors font-medium text-center">Get Started</Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </nav>
 
@@ -517,7 +539,7 @@ export default function Landing() {
             </p>
           </FadeUp>
 
-          <StaggerContainer className="grid md:grid-cols-4 gap-6" stagger={0.15} delayStart={0.2}>
+          <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" stagger={0.15} delayStart={0.2}>
             {[
               {
                 step: "01",
@@ -716,7 +738,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-10">
         <FadeUp className="max-w-6xl mx-auto px-4 lg:px-6">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <div className="overflow-hidden rounded-xl bg-white shadow-md">

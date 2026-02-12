@@ -304,7 +304,7 @@ export default function ExpertConsultations() {
             </div>
 
             {/* Stats Cards */}
-            <div className="flex gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
               <div className="flex-1 bg-white rounded-lg p-4 border border-gray-200">
                 <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center mb-3">
                   <i className="ri-calendar-check-line text-xl text-teal-600"></i>

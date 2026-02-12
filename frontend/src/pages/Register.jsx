@@ -356,7 +356,7 @@ export default function Register() {
       </div>
 
       <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
       >
         <div
           onClick={() => handleAccountTypeSelect("farmer")}

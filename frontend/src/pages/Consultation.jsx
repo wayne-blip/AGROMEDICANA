@@ -940,7 +940,7 @@ export default function Consultation() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Preferred Date <span className="text-red-500">*</span>

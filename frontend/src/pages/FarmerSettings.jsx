@@ -424,7 +424,7 @@ export default function FarmerSettings() {
                           </p>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Full Name <span className="text-red-500">*</span>
@@ -460,7 +460,7 @@ export default function FarmerSettings() {
                           {renderError("email")}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Phone Number
@@ -535,7 +535,7 @@ export default function FarmerSettings() {
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Farm Name <span className="text-red-500">*</span>

@@ -102,11 +102,11 @@ export default function FarmerNotifications() {
         />
 
         <main className="flex-1 overflow-y-auto">
-          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-6 py-6">
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="px-4 sm:px-6 py-4 sm:py-6">
             {/* Page Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h1>
                 <p className="mt-1 text-sm text-gray-600">Stay updated with your farm alerts and messages</p>
               </div>
               <div className="flex items-center gap-3">

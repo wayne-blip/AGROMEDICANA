@@ -45,6 +45,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
   const [lastMsgMap, setLastMsgMap] = useState({});
   const [presenceMap, setPresenceMap] = useState({}); // { oderId: { online, text } }
   const [otherTyping, setOtherTyping] = useState(false);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   const typingTimer = useRef(null);
   const bottomRef = useRef(null);
   const scrollRef = useRef(null);
@@ -287,7 +288,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
     <div className={embedded ? "flex bg-gray-100 h-full w-full" : "fixed inset-0 z-[60] flex bg-gray-100"}>
 
       {/* ╔═══════════ LEFT SIDEBAR — CHAT LIST ═══════════╗ */}
-      <div className="w-[380px] flex-shrink-0 border-r border-gray-200 bg-white flex flex-col h-full">
+      <div className={`w-full md:w-[380px] md:flex-shrink-0 border-r border-gray-200 bg-white flex flex-col h-full ${mobileShowChat ? 'hidden md:flex' : 'flex'}`}>
 
         {/* Sidebar Header */}
         <div className="flex-shrink-0 bg-gradient-to-r from-teal-600 to-emerald-600 px-4 py-3 flex items-center justify-between">
@@ -337,7 +338,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
               return (
                 <div
                   key={c.id}
-                  onClick={() => { setActiveId(c.id); setMessages([]); }}
+                  onClick={() => { setActiveId(c.id); setMessages([]); setMobileShowChat(true); }}
                   className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-gray-50 ${
                     isActive ? "bg-teal-50 border-l-4 border-l-teal-500" : "hover:bg-gray-50 border-l-4 border-l-transparent"
                   }`}
@@ -384,7 +385,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
       </div>
 
       {/* ╔═══════════ RIGHT PANEL — ACTIVE CHAT ═══════════╗ */}
-      <div className="flex-1 flex flex-col h-full bg-[#efeae2]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='p' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M30 5 L35 15 L30 25 L25 15Z' fill='%23d5cfc3' opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='60' height='60' fill='url(%23p)'/%3E%3C/svg%3E\")" }}>
+      <div className={`flex-1 flex flex-col h-full bg-[#efeae2] ${mobileShowChat ? 'flex' : 'hidden md:flex'}`} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='p' width='60' height='60' patternUnits='userSpaceOnUse'%3E%3Cpath d='M30 5 L35 15 L30 25 L25 15Z' fill='%23d5cfc3' opacity='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='60' height='60' fill='url(%23p)'/%3E%3C/svg%3E\")" }}>
 
         {!active ? (
           /* ── No chat selected ── */
@@ -400,7 +401,11 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
         ) : (
           <>
             {/* ─── Chat Header ─── */}
-            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-5 py-3 flex items-center gap-4 shadow-sm">
+            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-3 sm:px-5 py-3 flex items-center gap-3 sm:gap-4 shadow-sm">
+              {/* Mobile back button */}
+              <button onClick={() => setMobileShowChat(false)} className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 cursor-pointer flex-shrink-0">
+                <i className="ri-arrow-left-s-line text-xl"></i>
+              </button>
               {otherPhoto(active) ? (
                 <img src={otherPhoto(active)} alt="" className="w-10 h-10 rounded-full object-cover" />
               ) : (
@@ -433,7 +438,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex-1 overflow-y-auto px-16 py-4 space-y-1 scroll-smooth relative"
+              className="flex-1 overflow-y-auto px-4 sm:px-8 md:px-16 py-4 space-y-1 scroll-smooth relative"
               style={{ overscrollBehavior: "contain" }}
               onClick={() => setContextMenu(null)}
             >
@@ -597,7 +602,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
 
             {/* ── Typing indicator ── */}
             {otherTyping && (
-              <div className="flex items-center gap-2 px-16 pb-1">
+              <div className="flex items-center gap-2 px-4 sm:px-8 md:px-16 pb-1">
                 <div className="bg-white rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm flex items-center gap-1.5">
                   <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '0ms' }}></span>
                   <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '150ms' }}></span>
@@ -618,7 +623,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
             )}
 
             {/* ─── Input Bar ─── */}
-            <form onSubmit={handleSend} className="flex-shrink-0 bg-white border-t border-gray-100 px-4 py-2.5 flex items-end gap-2">
+            <form onSubmit={handleSend} className="flex-shrink-0 bg-white border-t border-gray-100 px-2 sm:px-4 py-2.5 flex items-end gap-1 sm:gap-2">
               {/* attachment */}
               <input ref={fileRef} type="file" className="hidden" accept="image/*,.pdf,.doc,.docx,.txt,.xlsx,.csv" onChange={handleFileSelect} />
               <button
@@ -635,7 +640,7 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
               <button
                 type="button"
                 onClick={() => document.getElementById("img-input")?.click()}
-                className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-teal-600 hover:bg-teal-50 transition cursor-pointer flex-shrink-0"
+                className="hidden sm:flex w-10 h-10 items-center justify-center rounded-full text-gray-500 hover:text-teal-600 hover:bg-teal-50 transition cursor-pointer flex-shrink-0"
                 title="Send photo"
               >
                 <i className="ri-image-line text-xl"></i>

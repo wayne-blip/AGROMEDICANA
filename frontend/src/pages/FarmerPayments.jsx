@@ -127,11 +127,11 @@ export default function FarmerPayments() {
             {/* Payment History */}
             <div className="bg-white rounded-lg border border-gray-200">
               <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <h2 className="text-lg font-semibold text-gray-900">
                     Payment History
                   </h2>
-                  <div className="relative flex-1 max-w-md ml-4">
+                  <div className="relative flex-1 max-w-md">
                     <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input
                       type="text"

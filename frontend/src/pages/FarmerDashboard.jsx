@@ -101,12 +101,12 @@ export default function FarmerDashboard({
         />
 
         <main className="flex-1 overflow-y-auto">
-          <div className="px-6 py-6">
+          <div className="px-4 sm:px-6 py-4 sm:py-6">
             {/* Welcome Section */}
             <div
               className="mb-6"
             >
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Welcome back, {user?.full_name || user?.username || "Farmer"}!
               </h1>
               <p className="mt-1 text-sm text-gray-600">
@@ -115,11 +115,10 @@ export default function FarmerDashboard({
             </div>
 
             {/* Stats Cards */}
-            <div className="flex gap-4 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
               {farmerStats.map((stat, index) => (
                 <div
                   key={index}
-                  className="flex-1"
                 >
                   <StatsCard {...stat} />
                 </div>
