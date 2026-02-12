@@ -8,6 +8,10 @@ const POLICY_RULES = [
   "Violations may result in account suspension",
 ];
 
+/* otherId helper */
+const getOtherId = (consultation, user) =>
+  user?.role === "Expert" ? consultation.client_id : consultation.expert_id;
+
 /* ─── Contact-info detector (client-side pre-check) ─── */
 const BLOCKED_RX = [
   { rx: /\b\d{10,}\b/, reason: "phone number" },
@@ -55,9 +59,11 @@ export default function ChatWindow({ consultation, user, onClose }) {
   const [showPolicy, setShowPolicy] = useState(false);
   const [blocked, setBlocked] = useState(null);        // flash blocked reason
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [otherTyping, setOtherTyping] = useState(false);
   const bottomRef = useRef(null);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const typingTimer = useRef(null);
 
   /* ── who is the other party? ── */
   const isExpert = user?.role === "Expert";
@@ -99,6 +105,27 @@ export default function ChatWindow({ consultation, user, onClose }) {
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
     setShowScrollBtn(scrollHeight - scrollTop - clientHeight > 120);
   };
+
+  /* ── Typing indicator: emit when user types ── */
+  const emitTyping = useCallback(() => {
+    post('/api/v1/presence/typing', { consultation_id: consultation.id }).catch(() => {});
+  }, [consultation.id]);
+
+  /* ── Typing indicator: poll other user's typing status ── */
+  useEffect(() => {
+    const oId = getOtherId(consultation, user);
+    if (!oId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await get(`/api/v1/presence/typing/${consultation.id}/${oId}`);
+        if (!cancelled) setOtherTyping(res?.typing || false);
+      } catch (_) { if (!cancelled) setOtherTyping(false); }
+    };
+    poll();
+    const iv = setInterval(poll, 2000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [consultation.id, user]);
 
   /* ── send ── */
   const handleSend = async (e) => {
@@ -300,6 +327,18 @@ export default function ChatWindow({ consultation, user, onClose }) {
           <div ref={bottomRef} />
         </div>
 
+        {/* ── Typing indicator ── */}
+        {otherTyping && (
+          <div className="flex items-center gap-2 px-5 pb-1 bg-gradient-to-b from-transparent to-white">
+            <div className="bg-white rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm border border-gray-100 flex items-center gap-1.5">
+              <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '0ms' }}></span>
+              <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '150ms' }}></span>
+              <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '300ms' }}></span>
+            </div>
+            <span className="text-xs text-gray-400">{otherName} is typing</span>
+          </div>
+        )}
+
         {/* scroll-to-bottom fab */}
         {showScrollBtn && (
           <button
@@ -333,6 +372,10 @@ export default function ChatWindow({ consultation, user, onClose }) {
                 // auto-grow
                 e.target.style.height = "auto";
                 e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                /* signal typing */
+                clearTimeout(typingTimer.current);
+                emitTyping();
+                typingTimer.current = setTimeout(() => {}, 3000);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -372,6 +415,8 @@ export default function ChatWindow({ consultation, user, onClose }) {
         .animate-fade-in { animation: fade-in 0.2s ease-out; }
         @keyframes slide-down { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 120px; } }
         .animate-slide-down { animation: slide-down 0.25s ease-out; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+        .typing-dot { animation: typingBounce 1.4s infinite ease-in-out; }
       `}</style>
     </div>
   );

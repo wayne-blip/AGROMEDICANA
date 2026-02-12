@@ -44,6 +44,8 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
   const [unreadMap, setUnreadMap] = useState({});
   const [lastMsgMap, setLastMsgMap] = useState({});
   const [presenceMap, setPresenceMap] = useState({}); // { oderId: { online, text } }
+  const [otherTyping, setOtherTyping] = useState(false);
+  const typingTimer = useRef(null);
   const bottomRef = useRef(null);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
@@ -144,6 +146,29 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
     const iv = activeId ? setInterval(fetchMessages, 4000) : null;
     return () => iv && clearInterval(iv);
   }, [activeId, fetchMessages]);
+
+  /* ── Typing indicator: emit when user types ── */
+  const emitTyping = useCallback(() => {
+    if (!activeId) return;
+    post('/api/v1/presence/typing', { consultation_id: activeId }).catch(() => {});
+  }, [activeId]);
+
+  /* ── Typing indicator: poll other user's typing status ── */
+  useEffect(() => {
+    if (!active) { setOtherTyping(false); return; }
+    const oId = otherId(active);
+    if (!oId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await get(`/api/v1/presence/typing/${activeId}/${oId}`);
+        if (!cancelled) setOtherTyping(res?.typing || false);
+      } catch (_) { if (!cancelled) setOtherTyping(false); }
+    };
+    poll();
+    const iv = setInterval(poll, 2000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, [activeId, active]);
 
   /* auto-scroll */
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
@@ -570,6 +595,18 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
               )}
             </div>
 
+            {/* ── Typing indicator ── */}
+            {otherTyping && (
+              <div className="flex items-center gap-2 px-16 pb-1">
+                <div className="bg-white rounded-2xl rounded-bl-md px-4 py-2.5 shadow-sm flex items-center gap-1.5">
+                  <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '0ms' }}></span>
+                  <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '150ms' }}></span>
+                  <span className="typing-dot w-2 h-2 bg-gray-400 rounded-full" style={{ animationDelay: '300ms' }}></span>
+                </div>
+                <span className="text-xs text-gray-400">{active ? otherName(active) : ''} is typing</span>
+              </div>
+            )}
+
             {/* scroll-to-bottom FAB */}
             {showScrollBtn && (
               <button
@@ -614,6 +651,10 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
                     setText(e.target.value);
                     e.target.style.height = "auto";
                     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                    /* signal typing */
+                    clearTimeout(typingTimer.current);
+                    emitTyping();
+                    typingTimer.current = setTimeout(() => {}, 3000);
                   }}
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }}
                   placeholder="Type a message"
@@ -646,6 +687,8 @@ export default function ChatPage({ consultations, user, onClose, embedded }) {
       <style>{`
         @keyframes fade-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
         .animate-fade-in { animation: fade-in 0.15s ease-out; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+        .typing-dot { animation: typingBounce 1.4s infinite ease-in-out; }
       `}</style>
 
       {/* ── Delete Confirm Dialog ── */}
